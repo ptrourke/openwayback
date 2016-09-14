@@ -21,6 +21,8 @@ package org.archive.wayback.authenticationcontrol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +40,7 @@ public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest>
 	private static final Logger LOGGER = Logger.getLogger(IPMatchesBooleanOperator
 			.class.getName());
 	private List<IPRange> allowedRanges = null;
+	private List<IPRange> proxyIPList = null;
 
 	/**
 	 * @return null. this is a placeholder for Spring's getter/setter 
@@ -63,7 +66,6 @@ public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest>
 		}
 	}
 
-	private List<IPRange> proxyIPList = null;
 	public List<String> getProxyIPList() {
 		return null;
 	}
@@ -84,19 +86,16 @@ public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest>
 		}
 	}
 
-
 	public String getClientIPFromForwardedForHeader(String forwardedForHeader, String remoteAddr){
-	private static final Logger LOGGER = Logger.getLogger(IPMatchesBooleanOperator
-			.class.getName());
-
 		if (proxyIPList.isEmpty()) {
 			return remoteAddr;
 		}
 
 		ArrayList<String> forwardingIPs;
-		String ip;
+		String ip = null;
 		if (forwardedForHeader.contains(",")) {
-			forwardingIPs =  Collections.reverse(Arrays.asList(forwardedForHeader.split(",")));
+			forwardingIPs = new ArrayList<String>(Arrays.asList(forwardedForHeader.split(",")));
+			Collections.reverse(forwardingIPs);
 			for (String forwardingIP : forwardingIPs){
 				if (proxyIPList.contains(forwardingIP)){
 					continue;
