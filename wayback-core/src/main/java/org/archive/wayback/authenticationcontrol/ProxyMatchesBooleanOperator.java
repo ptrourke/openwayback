@@ -36,29 +36,30 @@ import org.archive.wayback.util.operator.BooleanOperator;
  * @author brad
  *
  */
-public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest> {
-	private static final Logger LOGGER = Logger.getLogger(IPMatchesBooleanOperator
+public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackRequest> {
+	private static final Logger LOGGER = Logger.getLogger(ProxyMatchesBooleanOperator
 			.class.getName());
-	private List<IPRange> allowedRanges = null;
+
+	private List<IPRange> trustedProxies = null;
 
 	/**
 	 * @return null. this is a placeholder for Spring's getter/setter 
 	 * 			examination
 	 */
-	public List<String> getAllowedRanges() {
+	public List<String> getTrustedProxies() {
 		return null;
 	}
 
 	/**
-	 * @param allowedRanges parses each String IPRange provided, added them to
-	 * 		the list of IPRanges which this operator matches
+	 * @param trustedProxies parses each String IPRange provided for the proxies, adding them to
+	 * 		the list of IPRanges which must be ignored by the IP match operator
 	 */
-	public void setAllowedRanges(List<String> allowedRanges) {
-		this.allowedRanges = new ArrayList<IPRange>();
-		for(String ip : allowedRanges) {
+	public void setTrustedProxies(List<String> trustedProxies) {
+		this.trustedProxies = new ArrayList<IPRange>();
+		for (String ip : trustedProxies) {
 			IPRange range = new IPRange();
-			if(range.setRange(ip)) {
-				this.allowedRanges.add(range);
+			if (range.setRange(ip)) {
+				this.trustedProxies.add(range);
 			} else {
 				LOGGER.severe("Unable to parse range (" + ip + ")");
 			}
@@ -73,7 +74,7 @@ public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest>
 			forwardingIPs = new ArrayList<String>(Arrays.asList(forwardedForHeader.split(",")));
 			Collections.reverse(forwardingIPs);
 			for (String forwardingIP : forwardingIPs){
-				if (!allowedRanges.contains(forwardingIP)){
+				if (trustedProxies.contains(forwardingIP)){
 					continue;
 				}
 				ip = forwardingIP;
@@ -97,7 +98,7 @@ public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest>
 		} else {
 			ipString = value.getRemoteIPAddress();
 		}
-		
+
 		if(ipString == null) {
 			return false;
 		}
