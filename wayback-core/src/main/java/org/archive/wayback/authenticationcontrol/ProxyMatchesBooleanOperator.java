@@ -41,6 +41,33 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 			.class.getName());
 
 	private List<IPRange> trustedProxies = null;
+	private List<IPRange> allowedRanges = null;
+
+	/**
+	 * @return null. this is a placeholder for Spring's getter/setter 
+	 * 			examination
+	 */
+	public List<String> getAllowedRanges() {
+		return null;
+	}
+
+	/**
+	 * @param allowedRanges parses each String IPRange provided, added them to
+	 * 		the list of IPRanges which this operator matches
+	 */
+	public void setAllowedRanges(List<String> allowedRanges) {
+		this.allowedRanges = new ArrayList<IPRange>();
+		for(String ip : allowedRanges) {
+			LOGGER.severe("allowedRanges ip ("+ip+")");
+			IPRange range = new IPRange();
+			if(range.setRange(ip)) {
+				this.allowedRanges.add(range);
+				LOGGER.severe("range added ("+range.getOriginal()+")");
+			} else {
+				LOGGER.severe("Unable to parse range (" + ip + ")");
+			}
+		}
+	}
 
 	/**
 	 * @return null. this is a placeholder for Spring's getter/setter 
@@ -57,9 +84,11 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 	public void setTrustedProxies(List<String> trustedProxies) {
 		this.trustedProxies = new ArrayList<IPRange>();
 		for (String ip : trustedProxies) {
+			LOGGER.severe("trustedProxies ip ("+ip+")");
 			IPRange range = new IPRange();
 			if (range.setRange(ip)) {
 				this.trustedProxies.add(range);
+				LOGGER.severe("range added ("+range.getOriginal()+")");
 			} else {
 				LOGGER.severe("Unable to parse range (" + ip + ")");
 			}
@@ -70,19 +99,30 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 
 		ArrayList<String> forwardingIPs;
 		String ip = null;
+		Boolean containsIP = null;
 		if (forwardedForHeader.contains(",")) {
-			forwardingIPs = new ArrayList<String>(Arrays.asList(forwardedForHeader.split(",")));
+			forwardingIPs = new ArrayList<String>(Arrays.asList(forwardedForHeader.replace(" ", "").split(",")));
 			Collections.reverse(forwardingIPs);
+			LOGGER.severe("reversed ips ("+forwardingIPs+")");
 			for (String forwardingIP : forwardingIPs){
-				if (trustedProxies.contains(forwardingIP)){
-					continue;
+				LOGGER.severe("ip from for loop ("+forwardingIP+")");
+				for (IPRange range : trustedProxies){
+					if (range.contains(forwardingIP)){
+						containsIP = true;
+						break;
+					}
+					containsIP = false;
 				}
-				ip = forwardingIP;
-				break;
+				if (!containsIP || 
+					(containsIP && forwardingIPs.get(forwardingIPs.size() - 1).equals(forwardingIP))){
+					ip = forwardingIP;
+					break;
+				}
 			}
 		} else {
 			ip = forwardedForHeader;
 		}
+		LOGGER.severe("ip to be returned ("+ip+")");
 		return ip;
 	}
 
@@ -90,18 +130,16 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 		if(allowedRanges == null) {
 			return false;
 		}
-		
-		String ipString;
-		String forwardedForHeader = value.getForwardedForHeader();
-		if (forwardedForHeader != null) {
-			ipString = getClientIPFromForwardedForHeader(forwardedForHeader);
-		} else {
-			ipString = value.getRemoteIPAddress();
-		}
 
-		if(ipString == null) {
+		String ipString = value.getRemoteIPAddress();
+		LOGGER.severe("ipString before ("+ipString+")");
+		if (ipString != null) {
+			ipString = getClientIPFromForwardedForHeader(ipString);
+			LOGGER.severe("ipString after ("+ipString+")");
+		} else {
 			return false;
 		}
+		
 		byte[] ip = IPRange.matchIP(ipString);
 		if(ip == null) {
 			LOGGER.severe("Unable to parse remote IP address("+ipString+")");
