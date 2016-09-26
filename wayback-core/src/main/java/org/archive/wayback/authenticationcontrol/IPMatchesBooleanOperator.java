@@ -36,8 +36,8 @@ import org.archive.wayback.util.operator.BooleanOperator;
  * @author brad
  *
  */
-public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackRequest> {
-	private static final Logger LOGGER = Logger.getLogger(ProxyMatchesBooleanOperator
+public class IPMatchesBooleanOperator implements BooleanOperator<WaybackRequest> {
+	private static final Logger LOGGER = Logger.getLogger(IPMatchesBooleanOperator
 			.class.getName());
 
 	private List<IPRange> trustedProxies = null;
