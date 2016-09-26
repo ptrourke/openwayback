@@ -58,9 +58,11 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 	public void setAllowedRanges(List<String> allowedRanges) {
 		this.allowedRanges = new ArrayList<IPRange>();
 		for(String ip : allowedRanges) {
+			LOGGER.severe("allowedRanges ip ("+ip+")");
 			IPRange range = new IPRange();
 			if(range.setRange(ip)) {
 				this.allowedRanges.add(range);
+				LOGGER.severe("range added ("+range.getOriginal()+")");
 			} else {
 				LOGGER.severe("Unable to parse range (" + ip + ")");
 			}
@@ -82,9 +84,11 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 	public void setTrustedProxies(List<String> trustedProxies) {
 		this.trustedProxies = new ArrayList<IPRange>();
 		for (String ip : trustedProxies) {
+			LOGGER.severe("trustedProxies ip ("+ip+")");
 			IPRange range = new IPRange();
 			if (range.setRange(ip)) {
 				this.trustedProxies.add(range);
+				LOGGER.severe("range added ("+range.getOriginal()+")");
 			} else {
 				LOGGER.severe("Unable to parse range (" + ip + ")");
 			}
@@ -99,7 +103,9 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 		if (forwardedForHeader.contains(",")) {
 			forwardingIPs = new ArrayList<String>(Arrays.asList(forwardedForHeader.replace(" ", "").split(",")));
 			Collections.reverse(forwardingIPs);
+			LOGGER.severe("reversed ips ("+forwardingIPs+")");
 			for (String forwardingIP : forwardingIPs){
+				LOGGER.severe("ip from for loop ("+forwardingIP+")");
 				for (IPRange range : trustedProxies){
 					if (range.contains(forwardingIP)){
 						containsIP = true;
@@ -116,6 +122,7 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 		} else {
 			ip = forwardedForHeader;
 		}
+		LOGGER.severe("ip to be returned ("+ip+")");
 		return ip;
 	}
 
@@ -125,8 +132,10 @@ public class ProxyMatchesBooleanOperator implements BooleanOperator<WaybackReque
 		}
 
 		String ipString = value.getRemoteIPAddress();
+		LOGGER.severe("ipString before ("+ipString+")");
 		if (ipString != null) {
 			ipString = getClientIPFromForwardedForHeader(ipString);
+			LOGGER.severe("ipString after ("+ipString+")");
 		} else {
 			return false;
 		}
