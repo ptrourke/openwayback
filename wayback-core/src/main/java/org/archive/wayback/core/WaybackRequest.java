@@ -371,12 +371,6 @@ public class WaybackRequest {
 	 */
 	public static final String REQUEST_REMOTE_ADDRESS = "remoteaddress";
 	/**
-	 * Forwarded-for headers
-	 *
-	 */
-	public static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
-
-	/**
 	 * Remote User or null if the request did not contain auth info.
 	 * see HttpServletRequest.getRemoteUser()
 	 */
@@ -1049,9 +1043,6 @@ public class WaybackRequest {
 	}
 	public String getRemoteIPAddress() {
 		return get(REQUEST_REMOTE_ADDRESS);
-	}
-	public String getForwardedForHeader() {
-		return get(FORWARDED_FOR_HEADER);
 	}
 	public String getRemoteUser() {
 		return get(REQUEST_REMOTE_USER);
