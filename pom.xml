@@ -140,12 +140,12 @@
 
 	</repositories>
 
-	<scm>
-		<connection>scm:git:git@github.com:iipc/openwayback.git</connection>
-		<developerConnection>scm:git:git@github.com:iipc/openwayback.git</developerConnection>
-		<url>git@github.com:iipc/openwayback.git</url>
+<!-- 	<scm>
+		<connection>scm:git:git@github.com:chasehd/openwayback.git</connection>
+		<developerConnection>scm:git:git@github.com:chasehd/openwayback.git</developerConnection>
+		<url>git@github.com:chasehd/openwayback.git</url>
 	  <tag>HEAD</tag>
-  </scm>
+  </scm> -->
 
 	<prerequisites>
 		<maven>2.1</maven>
